@@ -8,6 +8,8 @@ import CreateProduct from "./pages/dashboard/createproduct/index"
 import CreateFaq from "./pages/dashboard/createfaq/index"
 
 import CreateNewsfeed from "./pages/dashboard/createnewsfeed/index"
+import Userproduct from "./pages/dashboard/userproduct/userproduct"
+
 import CreateJob from "./pages/dashboard/createjob/index"
 
 import CreateUsers from "./pages/dashboard/createusers/index"
@@ -38,6 +40,11 @@ const App = () => {
                         path="admin/create-newsfeed"
                         element={<CreateNewsfeed />}
                     />
+                    <Route
+                        path="admin/user_product"
+                        element={<Userproduct />}
+                    />
+
                     <Route path="admin/create-job" element={<CreateJob />} />
 
                     <Route path="admin/users" element={<CreateUsers />} />

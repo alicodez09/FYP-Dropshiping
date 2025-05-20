@@ -16,6 +16,7 @@ import handler, {
   getUserProductReviewController,
   getUserById,
   deleteReview,
+  getProductById
 } from "../controllers/productController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 import formidable from "express-formidable";
@@ -47,6 +48,9 @@ router.post("/handler", handler);
 
 //single product
 router.get("/get-product/:slug", getSingleProductController);
+router.get("/get-product-details/:id", getProductById);
+
+
 
 //get photo
 router.get("/product-photo/:pid", productPhotoController);

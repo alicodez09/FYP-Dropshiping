@@ -11,7 +11,8 @@ import {
   GetUser,
   DeleteUser,
   ChatBot,
-  AddProduct
+  AddProduct,
+  approveProduct
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 
@@ -21,6 +22,9 @@ const router = express.Router();
 //routing
 //REGISTER || METHOD POST
 router.post("/register", registerController);
+router.post("/approve-product", approveProduct);
+
+
 
 //LOGIN || POST
 router.post("/login", loginController);
