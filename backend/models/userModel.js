@@ -12,10 +12,25 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phone: {
+      type: String,
+      required: true,
+    },
     password: {
       type: String,
       required: true,
     },
+    products: [{
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: false
+      },
+      status: {
+        type: Boolean,
+        default: false
+      }
+    }],
 
     role: {
       type: Number,

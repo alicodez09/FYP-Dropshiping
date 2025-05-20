@@ -7,6 +7,9 @@ import {
     TagIcon,
     CubeIcon,
     UsersIcon,
+    Cog6ToothIcon,
+    DocumentTextIcon,
+    UserIcon,
 } from "./icons"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -119,6 +122,41 @@ export function Sidebar({ children }: SidebarProps) {
                                 <CubeIcon className="h-5 w-5" />
                                 {isOpen && (
                                     <span className="ml-3">Create Product</span>
+                                )}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/admin/create-newsfeed"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <Cog6ToothIcon className="h-5 w-5" />
+                                {isOpen && (
+                                    <span className="ml-3">
+                                        Create Newsfeed
+                                    </span>
+                                )}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/admin/create-faq"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <DocumentTextIcon className="h-5 w-5" />
+                                {isOpen && (
+                                    <span className="ml-3">Create Faq</span>
+                                )}
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to="/admin/create-job"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <UserIcon className="h-5 w-5" />
+                                {isOpen && (
+                                    <span className="ml-3">Create Job</span>
                                 )}
                             </Link>
                         </li>

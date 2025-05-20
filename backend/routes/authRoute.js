@@ -11,6 +11,7 @@ import {
   GetUser,
   DeleteUser,
   ChatBot,
+  AddProduct
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 
@@ -23,9 +24,13 @@ router.post("/register", registerController);
 
 //LOGIN || POST
 router.post("/login", loginController);
+router.post("/login", loginController);
+
 router.get("/get-user", GetUser);
 router.delete("/delete-user/:id", DeleteUser);
 router.post("/chatbot", ChatBot);
+router.put("/:userId/add-product", AddProduct);
+
 
 
 

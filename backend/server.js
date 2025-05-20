@@ -9,6 +9,10 @@ import productRoutes from "./routes/productRoutes.js";
 import featureRoutes from "./routes/featureRoutes.js";
 import integrationRoutes from "./routes/integrationRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
+import newsfeedRoutes from "./routes/newsfeedRoutes.js";
+import jobRoutes from "./routes/jobRoutes.js";
+
+
 
 import cors from "cors";
 
@@ -33,6 +37,9 @@ app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/feature", featureRoutes);
 app.use("/api/v1/integration", integrationRoutes);
 app.use("/api/v1/faq", faqRoutes);
+app.use("/api/v1/newsfeed", newsfeedRoutes);
+app.use("/api/v1/job", jobRoutes);
+
 
 //rest api
 app.get("/", (req, res) => {

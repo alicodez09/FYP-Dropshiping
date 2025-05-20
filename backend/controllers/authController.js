@@ -53,6 +53,46 @@ export const registerController = async (req, res) => {
   }
 };
 
+export const AddProduct = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ success: false, message: 'Product ID is required' });
+    }
+
+    // Check if product already exists in the user's product list
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const alreadyExists = user.products.some(
+      p => p.product.toString() === productId
+    );
+
+    if (alreadyExists) {
+      return res.status(400).json({ success: false, message: 'Product already added' });
+    }
+
+    // Add product with default status (false)
+    user.products.push({ product: productId, status: false });
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user,
+      message: 'Product added successfully with pending status'
+    });
+  } catch (error) {
+    console.error('Error adding product to user:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
 //POST LOGIN
 export const loginController = async (req, res) => {
   try {

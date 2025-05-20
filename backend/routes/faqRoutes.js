@@ -11,10 +11,10 @@ import {
 const router = express.Router();
 
 // Routes
-router.post("/create-faq", requireSignIn, isAdmin, createFaqController);
-router.put("/update-faq/:slug", requireSignIn, isAdmin, updateFaqController);
-router.get("/get-faqs", faqsController);
+router.post("/create-faq", createFaqController);
+router.put("/update-faq/:slug", updateFaqController);
+router.get("/get-faq", faqsController);
 router.get("/single-faq/:slug", singleFaqController);
-router.delete("/delete-faq/:id", requireSignIn, isAdmin, deleteFaqController);
+router.delete("/delete-faq/:id", deleteFaqController);
 
 export default router;

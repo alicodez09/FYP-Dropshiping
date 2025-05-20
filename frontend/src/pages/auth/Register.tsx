@@ -8,6 +8,8 @@ const Register: React.FC = () => {
 
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
+    const [phone, setPhone] = useState<string>("")
+
     const navigate = useNavigate()
     const [error, setError] = useState<string | null>(null)
 
@@ -25,6 +27,7 @@ const Register: React.FC = () => {
                     name,
                     email,
                     password,
+                    phone,
                 },
             )
 
@@ -86,7 +89,6 @@ const Register: React.FC = () => {
                             required
                         />
                     </div>
-
                     <div>
                         <label
                             htmlFor="password"
@@ -102,6 +104,21 @@ const Register: React.FC = () => {
                             value={password}
                             style={{ color: "black" }}
                             onChange={(e) => setPassword(e.target.value)}
+                            className="mt-2 w-full rounded-md border border-gray-300 p-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="phone" className="block text-gray-700">
+                            Phone
+                        </label>
+
+                        <input
+                            id="phone"
+                            type="phone"
+                            value={phone}
+                            style={{ color: "black" }}
+                            onChange={(e) => setPhone(e.target.value)}
                             className="mt-2 w-full rounded-md border border-gray-300 p-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />

@@ -1,5 +1,3 @@
-"use client"
-
 import Chatbot from "./chatbot"
 
 // This wrapper component is used to safely handle the API key

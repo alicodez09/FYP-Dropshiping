@@ -1,15 +1,15 @@
-import faqsModel from "../models/faqsModel.js";
+import jobModel from "../models/jobModel.js";
 import slugify from "slugify";
 
-export const createFaqController = async (req, res) => {
+export const create = async (req, res) => {
   try {
 
-    const faq = await faqsModel.create(req.body);
+    const job = await jobModel.create(req.body);
 
     res.status(201).send({
       success: true,
       message: "New FAQ created",
-      faq,
+      job,
     });
   } catch (error) {
     console.log(error);
@@ -20,11 +20,11 @@ export const createFaqController = async (req, res) => {
     });
   }
 };
-export const updateFaqController = async (req, res) => {
+export const update = async (req, res) => {
   try {
     const { question, answer, category } = req.body;
     const { slug } = req.params;
-    const updatedFaq = await faqsModel.findOneAndUpdate(
+    const updatedFaq = await jobModel.findOneAndUpdate(
       { slug }, // Using the slug to find the FAQ
       { question, answer, category, slug: slugify(question) },
       { new: true }
@@ -48,7 +48,7 @@ export const updateFaqController = async (req, res) => {
 //   try {
 //     const { question, answer, category } = req.body;
 //     const { slug } = req.params;
-//     const updatedFaq = await faqsModel.findOneAndUpdate(
+//     const updatedFaq = await jobModel.findOneAndUpdate(
 //       { slug },
 //       { question, answer, category, slug: slugify(question) },
 //       { new: true }
@@ -68,13 +68,13 @@ export const updateFaqController = async (req, res) => {
 //   }
 // };
 
-export const faqsController = async (req, res) => {
+export const get = async (req, res) => {
   try {
-    const faqs = await faqsModel.find({});
+    const jobs = await jobModel.find({});
     res.status(200).send({
       success: true,
       message: "All FAQs retrieved successfully",
-      faqs,
+      jobs,
     });
   } catch (error) {
     console.log(error);
@@ -88,7 +88,7 @@ export const faqsController = async (req, res) => {
 
 export const singleFaqController = async (req, res) => {
   try {
-    const faq = await faqsModel.findOne({ slug: req.params.slug });
+    const faq = await jobModel.findOne({ slug: req.params.slug });
     if (!faq) {
       return res.status(404).send({
         success: false,
@@ -110,10 +110,10 @@ export const singleFaqController = async (req, res) => {
   }
 };
 
-export const deleteFaqController = async (req, res) => {
+export const deletejob = async (req, res) => {
   try {
     const { id } = req.params;
-    await faqsModel.findByIdAndDelete(id);
+    await jobModel.findByIdAndDelete(id);
     res.status(200).send({
       success: true,
       message: "FAQ deleted successfully",

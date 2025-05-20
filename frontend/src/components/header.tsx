@@ -74,12 +74,13 @@ const Header = () => {
                         <NavLink to="/" active={location.pathname === "/"}>
                             Home
                         </NavLink>
-                        {/* <NavLink
+                        <NavLink
                             to="/products"
                             active={location.pathname === "/products"}
                         >
                             Products
                         </NavLink>
+                        {/* 
                         <NavLink
                             to="/categories"
                             active={location.pathname === "/categories"}
