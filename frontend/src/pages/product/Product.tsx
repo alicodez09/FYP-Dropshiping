@@ -2,10 +2,22 @@
 
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { Search, Sliders, X } from "lucide-react"
-import ChatbotWrapper from "@/components/chatbot-wrapper"
+import {
+    Search,
+    Sliders,
+    X,
+    ShoppingCart,
+    Briefcase,
+    User,
+    Mail,
+    Phone,
+    Linkedin,
+    Globe,
+} from "lucide-react"
+import { motion } from "framer-motion"
+import { Link, useNavigate } from "react-router-dom"
 
-// Define TypeScript interfaces for our data
+// Define TypeScript interfaces
 interface Category {
     _id: string
     name: string
@@ -25,6 +37,7 @@ interface Product {
     updatedAt: string
     __v: number
 }
+
 interface AuthData {
     success: boolean
     message: string
@@ -35,10 +48,18 @@ interface AuthData {
 interface UserData {
     _id: string
     products: { product: string; status: boolean }[]
-    [key: string]: any // Add specific fields as needed
+    cart: CartItem[]
+    [key: string]: any
+}
+
+interface CartItem {
+    product: Product
+    quantity: number
+    _id?: string
 }
 
 const Product = () => {
+    const router = useNavigate()
     const [products, setProducts] = useState<Product[]>([])
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
@@ -46,60 +67,91 @@ const Product = () => {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
         null,
     )
-    const [authData, setAuthData] = useState<AuthData | null>(null)
-    console.log(authData, "authData")
-
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000])
     const [showFilters, setShowFilters] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [cart, setCart] = useState<CartItem[]>([])
+    const [showCart, setShowCart] = useState(false)
+    const [authData, setAuthData] = useState<AuthData | null>(null)
 
     useEffect(() => {
         const storedAuth = localStorage.getItem("zain_auth")
         if (storedAuth) {
             try {
-                const parsedData = JSON.parse(storedAuth) as {
-                    user: UserData
-                    token: string
-                }
+                const parsedData = JSON.parse(storedAuth)
                 setAuthData(parsedData)
+                fetchCart(parsedData.user._id)
             } catch (error) {
                 console.error("Error parsing auth data:", error)
             }
         }
     }, [])
 
-    const handleBuy = async (productId: string) => {
+    const fetchCart = async (userId: string) => {
         try {
-            if (!authData?.user?._id) {
-                alert("Please login to buy products")
-                return
-            }
+            const response = await axios.get(
+                `http://localhost:8082/api/v1/auth/${userId}/cart`,
+            )
+            setCart(response.data.cart)
+        } catch (error) {
+            console.error("Error fetching cart:", error)
+        }
+    }
 
-            const userId = authData.user._id
+    const addToCart = async (productId: string) => {
+        if (!authData?.user?._id) {
+            alert("Please login to add products to cart")
+            router("/login")
+            return
+        }
 
-            const response = await axios.put(
-                `http://localhost:8082/api/v1/auth/${userId}/add-product`,
+        try {
+            await axios.put(
+                `http://localhost:8082/api/v1/auth/${authData.user._id}/add-to-cart`,
                 { productId },
             )
-
-            if (response.data.success) {
-                alert("Product added successfully! Status: Pending")
-                // Update local user data
-                const updatedUser = response.data.user
-                const updatedAuthData = {
-                    ...authData,
-                    user: updatedUser,
-                }
-                localStorage.setItem(
-                    "zain_auth",
-                    JSON.stringify(updatedAuthData),
-                )
-                setAuthData(updatedAuthData)
-            } else {
-                alert("Failed to add product: " + response.data.message)
-            }
+            fetchCart(authData.user._id)
+            alert("Product added to cart!")
         } catch (error) {
-            console.error("Error adding product:", error)
+            console.error("Error adding to cart:", error)
+            alert("Failed to add to cart")
+        }
+    }
+
+    const removeFromCart = async (productId: string) => {
+        try {
+            await axios.delete(
+                `http://localhost:8082/api/v1/auth/${authData?.user?._id}/remove-from-cart/${productId}`,
+            )
+            fetchCart(authData?.user?._id || "")
+        } catch (error) {
+            console.error("Error removing from cart:", error)
+        }
+    }
+
+    const updateQuantity = async (productId: string, newQuantity: number) => {
+        try {
+            await axios.put(
+                `http://localhost:8082/api/v1/auth/${authData?.user?._id}/update-cart/${productId}`,
+                { quantity: newQuantity },
+            )
+            fetchCart(authData?.user?._id || "")
+        } catch (error) {
+            console.error("Error updating cart:", error)
+        }
+    }
+
+    const checkout = async () => {
+        try {
+            await axios.post(
+                `http://localhost:8082/api/v1/auth/${authData?.user?._id}/checkout`,
+            )
+            setCart([])
+            setShowCart(false)
+            alert("Checkout successful! Your order is now pending.")
+        } catch (error) {
+            console.error("Error during checkout:", error)
+            alert("Checkout failed")
         }
     }
 
@@ -197,35 +249,186 @@ const Product = () => {
                         Products
                     </h1>
 
-                    {/* Search Bar */}
-                    <div className="relative w-full md:w-1/3">
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            value={searchQuery}
-                            style={{ color: "black" }}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-                        />
-                        <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                    </div>
+                    <div className="flex items-center gap-4">
+                        {/* Search Bar */}
+                        <div className="relative w-full md:w-64">
+                            <input
+                                type="text"
+                                placeholder="Search products..."
+                                value={searchQuery}
+                                style={{ color: "black" }}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                            />
+                            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        </div>
 
-                    {/* Mobile Filter Toggle */}
-                    <button
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200 md:hidden"
-                    >
-                        <Sliders className="h-4 w-4" />
-                        Filters
-                    </button>
+                        {/* Cart Button */}
+                        <button
+                            onClick={() => setShowCart(true)}
+                            className="relative rounded-lg bg-gray-100 p-2 text-gray-700 hover:bg-gray-200"
+                        >
+                            <ShoppingCart className="h-5 w-5" />
+                            {cart.length > 0 && (
+                                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-xs text-white">
+                                    {cart.reduce(
+                                        (total, item) => total + item.quantity,
+                                        0,
+                                    )}
+                                </span>
+                            )}
+                        </button>
+
+                        {/* Mobile Filter Toggle */}
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200 md:hidden"
+                        >
+                            <Sliders className="h-4 w-4" />
+                            Filters
+                        </button>
+                    </div>
                 </div>
             </header>
+
+            {/* Cart Modal */}
+            {showCart && (
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-white p-4">
+                    <div className="mb-6 flex items-center justify-between">
+                        <h2 className="text-xl font-bold">Your Cart</h2>
+                        <button
+                            onClick={() => setShowCart(false)}
+                            className="rounded-full p-2 hover:bg-gray-100"
+                        >
+                            <X className="h-6 w-6" />
+                        </button>
+                    </div>
+
+                    {cart.length === 0 ? (
+                        <div className="py-8 text-center">
+                            <p className="text-gray-600">Your cart is empty</p>
+                        </div>
+                    ) : (
+                        <div
+                            style={{
+                                marginLeft: "5rem",
+                                marginRight: "5rem",
+                            }}
+                        >
+                            <Link
+                                to="/"
+                                className="transition-color rounded-lg bg-blue-600 px-3 py-1.5 text-lg font-medium text-white"
+                            >
+                                Go Back
+                            </Link>
+                            <div className="mt-8 space-y-14">
+                                {cart.map((item) => (
+                                    <div
+                                        key={item.product._id}
+                                        className="flex items-center justify-between border-b pb-4"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <img
+                                                src={
+                                                    item.product.image[0] ||
+                                                    "/placeholder.svg"
+                                                }
+                                                alt={item.product.name}
+                                                className="h-16 w-16 rounded object-cover"
+                                            />
+                                            <div>
+                                                <h3
+                                                    className="font-medium"
+                                                    style={{ color: "black" }}
+                                                >
+                                                    {item.product.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-600">
+                                                    {formatPrice(
+                                                        item.product.price,
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() =>
+                                                    updateQuantity(
+                                                        item.product._id,
+                                                        item.quantity - 1,
+                                                    )
+                                                }
+                                                disabled={item.quantity <= 1}
+                                                className="h-8 w-8 rounded border bg-black disabled:opacity-50"
+                                            >
+                                                -
+                                            </button>
+                                            <span style={{ color: "black" }}>
+                                                {item.quantity}
+                                            </span>
+                                            <button
+                                                onClick={() =>
+                                                    updateQuantity(
+                                                        item.product._id,
+                                                        item.quantity + 1,
+                                                    )
+                                                }
+                                                className="h-8 w-8 rounded border bg-black"
+                                            >
+                                                +
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    removeFromCart(
+                                                        item.product._id,
+                                                    )
+                                                }
+                                                className="ml-2 text-red-500 hover:text-red-700"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-6 border-t pt-4">
+                                <div className="flex justify-between font-bold">
+                                    <span>Total:</span>
+                                    <span>
+                                        {formatPrice(
+                                            cart
+                                                .reduce(
+                                                    (total, item) =>
+                                                        total +
+                                                        Number(
+                                                            item.product.price,
+                                                        ) *
+                                                            item.quantity,
+                                                    0,
+                                                )
+                                                .toString(),
+                                        )}
+                                    </span>
+                                </div>
+                                <div className="flex justify-center">
+                                    <button
+                                        onClick={checkout}
+                                        className="mt-4 w-44 rounded-lg bg-purple-600 py-2 font-medium text-white hover:bg-purple-700"
+                                    >
+                                        Proceed to Checkout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col gap-8 md:flex-row">
                     {/* Filters - Mobile */}
                     {showFilters && (
-                        <div className="fixed inset-0 z-50 overflow-y-auto bg-white p-4 md:hidden">
+                        <div className="fixed inset-0 z-40 overflow-y-auto bg-white p-4 md:hidden">
                             <div className="mb-6 flex items-center justify-between">
                                 <h2 className="text-xl font-bold">Filters</h2>
                                 <button
@@ -305,8 +508,6 @@ const Product = () => {
                                             <img
                                                 src={
                                                     product.image[0] ||
-                                                    "/placeholder.svg" ||
-                                                    "/placeholder.svg" ||
                                                     "/placeholder.svg"
                                                 }
                                                 alt={product.name}
@@ -342,12 +543,12 @@ const Product = () => {
                                                     <button
                                                         className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-purple-700"
                                                         onClick={() =>
-                                                            handleBuy(
+                                                            addToCart(
                                                                 product._id,
                                                             )
                                                         }
                                                     >
-                                                        Buy Now
+                                                        Add to Cart
                                                     </button>
                                                 )}
                                             </div>
@@ -502,8 +703,6 @@ const Product = () => {
                         </div>
                     </div>
                 </div>
-
-                <ChatbotWrapper />
             </>
         )
     }

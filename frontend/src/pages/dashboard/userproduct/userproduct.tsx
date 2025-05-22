@@ -16,6 +16,7 @@ interface Product {
     _id: string
     product: string
     status: boolean
+    quantity: any
     details?: ProductDetails
 }
 
@@ -29,6 +30,7 @@ interface UserData {
 
 const UserProducts = () => {
     const [users, setUsers] = useState<UserData[]>([])
+    console.log(users, "users")
     const [loading, setLoading] = useState(true)
     const [toastMessage, setToastMessage] = useState<{
         show: boolean
@@ -242,6 +244,12 @@ const UserProducts = () => {
                                                                 {product.status
                                                                     ? "Approved"
                                                                     : "Pending"}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                Quantity:{" "}
+                                                                {
+                                                                    product?.quantity
+                                                                }
                                                             </p>
                                                         </div>
                                                         <button

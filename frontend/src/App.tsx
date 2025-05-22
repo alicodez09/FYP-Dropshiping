@@ -14,10 +14,12 @@ import CreateJob from "./pages/dashboard/createjob/index"
 
 import CreateUsers from "./pages/dashboard/createusers/index"
 
-import Product from "./pages/product/Product"
-
 import Header from "./components/header"
 import Home from "./pages/home/Home"
+import Product from "./pages/product/Product"
+import About from "./pages/about/About"
+import Team from "./pages/team/Team"
+import Faq from "./pages/faqs/Faq"
 
 const App = () => {
     return (
@@ -51,6 +53,11 @@ const App = () => {
                     <Route path="/" element={<Home />} />
 
                     <Route path="/products" element={<Product />} />
+                    <Route path="/faqs" element={<Faq />} />
+
+                    <Route path="/team" element={<Team />} />
+
+                    <Route path="/about" element={<About />} />
 
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />

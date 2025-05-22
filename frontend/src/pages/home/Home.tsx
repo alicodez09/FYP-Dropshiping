@@ -17,10 +17,19 @@ import {
     Mail,
     Phone,
     Linkedin,
+    Globe,
+    PhoneCall,
+    MailCheck,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import axios from "axios"
 import NewsFeed from "../neewsfeed/NewsFeed"
+import { FaLinkedin } from "react-icons/fa"
+import shoppingMall from "./shopping_mall.jpg"
+import clothes from "./clothes.jpg"
+
+import online from "./online.jpg"
+import { NavLink } from "react-router-dom"
 
 const Home = () => {
     // State for the image slider
@@ -30,11 +39,7 @@ const Home = () => {
     const [expandedFaq, setExpandedFaq] = useState(null)
 
     // Slider images
-    const sliderImages = [
-        "https://pixabay.com/get/gbf4eedfd256a5d0c5ffeda96ca8f8812b056f6a4e6e6ed55cac96bd3c55fd9190732dff631ac9fa257db9e39a6bc551a.jpg",
-        "https://pixabay.com/get/gd7a1aa5458e3317f7bc11af29a603f45e654cd1824a412a2d1eb82d4a8a9587787b97606a54409d23533c9ee1cddbda8.jpg",
-        "https://pixabay.com/get/g7f0b9623df67150d6eb6caaec1492b90fc44296547b631fb7f199faefc8b8fc3ed8b763452fb49cb8a3739324a8201dd68d414888308b7cd1a38a996a31425f0_1920.jpg",
-    ]
+    const sliderImages = [shoppingMall, online, clothes]
 
     // Auto-advance the slider
     useEffect(() => {
@@ -60,15 +65,15 @@ const Home = () => {
             prev === sliderImages.length - 1 ? 0 : prev + 1,
         )
     }
-
+    const [nonSellerUsers, setnonSellerUsers] = useState([])
     useEffect(() => {
         const getJobData = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:8082/api/v1/job/get`,
+                    `http://localhost:8082/api/v1/auth/get-non-seller`,
                 )
-                setJobs(response.data.jobs)
-                console.log(response.data.jobs, "jobs")
+                setnonSellerUsers(response.data.data)
+                console.log(response.data.data, "non-seller")
             } catch (error) {
                 console.error("Error fetching jobs:", error)
             }
@@ -143,7 +148,7 @@ const Home = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            Check Products
+                            <NavLink to="/products">Check Products</NavLink>
                         </motion.button>
                     </div>
 
@@ -243,220 +248,6 @@ const Home = () => {
                             <p className="text-gray-600">
                                 {feature.description}
                             </p>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Team/Jobs Section */}
-            <section className="mx-auto max-w-7xl px-4 py-16">
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="mb-12 text-center"
-                >
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="mb-2 inline-flex items-center justify-center rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-600"
-                    >
-                        <Briefcase className="mr-1 h-4 w-4" />
-                        Our Team
-                    </motion.div>
-                    <motion.h2
-                        initial={{ y: 20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-3xl font-bold text-gray-900 md:text-4xl"
-                    >
-                        Meet Our Experts
-                    </motion.h2>
-                    <motion.p
-                        initial={{ y: 20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="mx-auto mt-4 max-w-2xl text-lg text-gray-600"
-                    >
-                        Our talented professionals are ready to help you succeed
-                    </motion.p>
-                </motion.div>
-
-                <div className="grid gap-8 md:grid-cols-2">
-                    {jobs.map((job: any, index) => (
-                        <motion.div
-                            key={job?._id}
-                            initial={{ y: 50, opacity: 0 }}
-                            whileInView={{ y: 0, opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{
-                                duration: 0.6,
-                                delay: index * 0.2,
-                                type: "spring",
-                                stiffness: 100,
-                            }}
-                            whileHover={{
-                                y: -5,
-                                boxShadow:
-                                    "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                            }}
-                            className="group overflow-hidden rounded-2xl bg-white p-6 shadow-lg transition-all duration-300"
-                        >
-                            <div className="flex flex-col items-start">
-                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600 transition-all duration-300 group-hover:bg-rose-600 group-hover:text-white">
-                                    <User className="h-8 w-8" />
-                                </div>
-                                <div className="mb-2 flex items-center">
-                                    <h3 className="text-xl font-bold text-gray-900">
-                                        {job.name}
-                                    </h3>
-                                    <span className="ml-2 rounded-full bg-rose-100 px-3 py-1 text-xs font-medium text-rose-600">
-                                        {job.type}
-                                    </span>
-                                </div>
-                                <p className="mb-4 text-gray-600">
-                                    {job.description}
-                                </p>
-
-                                <div className="mt-2 grid w-full gap-2 text-sm text-gray-600">
-                                    <motion.div
-                                        className="flex items-center"
-                                        initial={{ x: -10, opacity: 0 }}
-                                        whileInView={{ x: 0, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{
-                                            duration: 0.4,
-                                            delay: 0.3 + index * 0.1,
-                                        }}
-                                    >
-                                        <Mail className="mr-2 h-4 w-4 text-rose-500" />
-                                        <span>{job.email}</span>
-                                    </motion.div>
-                                    <motion.div
-                                        className="flex items-center"
-                                        initial={{ x: -10, opacity: 0 }}
-                                        whileInView={{ x: 0, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{
-                                            duration: 0.4,
-                                            delay: 0.4 + index * 0.1,
-                                        }}
-                                    >
-                                        <Phone className="mr-2 h-4 w-4 text-rose-500" />
-                                        <span>{job.phone}</span>
-                                    </motion.div>
-                                    <motion.a
-                                        href={job.linkedin}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center text-rose-500 hover:text-rose-600"
-                                        initial={{ x: -10, opacity: 0 }}
-                                        whileInView={{ x: 0, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{
-                                            duration: 0.4,
-                                            delay: 0.5 + index * 0.1,
-                                        }}
-                                    >
-                                        <Linkedin className="mr-2 h-4 w-4" />
-                                        <span>LinkedIn Profile</span>
-                                    </motion.a>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* FAQ Section */}
-            <section className="mx-auto max-w-7xl px-4 py-16">
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="mb-12 text-center"
-                >
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                        className="mb-2 inline-flex items-center justify-center rounded-full bg-rose-100 px-3 py-1 text-sm font-medium text-rose-600"
-                    >
-                        <HelpCircle className="mr-1 h-4 w-4" />
-                        Support
-                    </motion.div>
-                    <motion.h2
-                        initial={{ y: 20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-3xl font-bold text-gray-900 md:text-4xl"
-                    >
-                        Frequently Asked Questions
-                    </motion.h2>
-                    <motion.p
-                        initial={{ y: 20, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="mx-auto mt-4 max-w-2xl text-lg text-gray-600"
-                    >
-                        Find answers to common questions about our services
-                    </motion.p>
-                </motion.div>
-
-                <div className="mx-auto max-w-3xl">
-                    {faqs.map((faq: any, index) => (
-                        <motion.div
-                            key={faq?._id}
-                            initial={{ y: 20, opacity: 0 }}
-                            whileInView={{ y: 0, opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="mb-4"
-                        >
-                            <motion.button
-                                onClick={() => toggleFaq(index)}
-                                className={`flex w-full items-center justify-between rounded-lg p-5 text-left font-medium transition-all duration-300 ${
-                                    expandedFaq === index
-                                        ? "bg-rose-600 text-white"
-                                        : "bg-white text-gray-900 hover:bg-rose-50"
-                                }`}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
-                            >
-                                <span>{faq.question}</span>
-                                {expandedFaq === index ? (
-                                    <ChevronUp
-                                        className={`h-5 w-5 ${expandedFaq === index ? "text-white" : "text-rose-500"}`}
-                                    />
-                                ) : (
-                                    <ChevronDown
-                                        className={`h-5 w-5 ${expandedFaq === index ? "text-white" : "text-rose-500"}`}
-                                    />
-                                )}
-                            </motion.button>
-
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{
-                                    height: expandedFaq === index ? "auto" : 0,
-                                    opacity: expandedFaq === index ? 1 : 0,
-                                }}
-                                transition={{ duration: 0.3 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="rounded-b-lg border-x border-b border-gray-200 bg-white p-5 text-gray-700">
-                                    {faq.answer}
-                                </div>
-                            </motion.div>
                         </motion.div>
                     ))}
                 </div>

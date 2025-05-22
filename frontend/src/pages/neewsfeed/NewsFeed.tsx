@@ -207,10 +207,6 @@ const NewsFeed = () => {
     return (
         <div className="relative bg-white">
             <div className="mx-72 p-4" style={{ minHeight: "100vh" }}>
-                <h1 className="mb-4 text-4xl font-bold text-gray-800">
-                    News Feed
-                </h1>
-
                 {/* Feed Items */}
                 <div className="space-y-6">
                     {feeds.length === 0 && !loading && (
@@ -220,9 +216,9 @@ const NewsFeed = () => {
                     )}
                     {feeds.map((feedGroup, groupIdx) => (
                         <div key={groupIdx} className="mb-8">
-                            <h2 className="mb-4 text-lg font-semibold text-gray-600">
+                            {/* <h2 className="mb-4 text-lg font-semibold text-gray-600">
                                 {formatDate(feedGroup.date)}
-                            </h2>
+                            </h2> */}
 
                             <div className="my-10 space-y-10">
                                 {feedGroup.entries.map((item) => (

@@ -11,8 +11,13 @@ import {
   GetUser,
   DeleteUser,
   ChatBot,
-  AddProduct,
-  approveProduct
+  approveProduct,
+  getNonSellerUsersController,
+  addToCart,
+  removeFromCart,
+  updateCartItem,
+  checkoutCart,
+  getCart
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 
@@ -28,12 +33,20 @@ router.post("/approve-product", approveProduct);
 
 //LOGIN || POST
 router.post("/login", loginController);
-router.post("/login", loginController);
 
 router.get("/get-user", GetUser);
+router.get("/get-non-seller", getNonSellerUsersController);
+
+
 router.delete("/delete-user/:id", DeleteUser);
 router.post("/chatbot", ChatBot);
-router.put("/:userId/add-product", AddProduct);
+// router.put("/:userId/add-product", AddProduct);
+// In your authRoutes.js or userRoutes.js
+router.get('/:userId/cart', getCart);
+router.put('/:userId/add-to-cart', addToCart);
+router.put('/:userId/update-cart/:productId', updateCartItem);
+router.delete('/:userId/remove-from-cart/:productId', removeFromCart);
+router.post('/:userId/checkout', checkoutCart);
 
 
 

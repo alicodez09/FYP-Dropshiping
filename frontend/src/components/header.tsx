@@ -75,6 +75,24 @@ const Header = () => {
                             Home
                         </NavLink>
                         <NavLink
+                            to="/about"
+                            active={location.pathname === "/about"}
+                        >
+                            About
+                        </NavLink>
+                        <NavLink
+                            to="/team"
+                            active={location.pathname === "/team"}
+                        >
+                            Team
+                        </NavLink>
+                        <NavLink
+                            to="/faqs"
+                            active={location.pathname === "/faqs"}
+                        >
+                            FAQ's
+                        </NavLink>
+                        <NavLink
                             to="/products"
                             active={location.pathname === "/products"}
                         >
@@ -87,12 +105,7 @@ const Header = () => {
                         >
                             Categories
                         </NavLink> */}
-                        <NavLink
-                            to="/about"
-                            active={location.pathname === "/about"}
-                        >
-                            About
-                        </NavLink>
+
                         {/* <NavLink
                             to="/contact"
                             active={location.pathname === "/contact"}

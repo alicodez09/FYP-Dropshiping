@@ -20,6 +20,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    cart: [{
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+        min: 1
+      }
+    }],
     products: [{
       product: {
         type: mongoose.Schema.Types.ObjectId,
@@ -29,9 +41,20 @@ const userSchema = new mongoose.Schema(
       status: {
         type: Boolean,
         default: false
+      },
+      quantity: {  // Add quantity field
+        type: Number,
+        default: 1,
+        min: 1
       }
     }],
-
+    user_type: {
+      type: String,
+      required: true,
+    },
+    user_type_data: {
+      type: Object,
+    },
     role: {
       type: Number,
       default: 0,

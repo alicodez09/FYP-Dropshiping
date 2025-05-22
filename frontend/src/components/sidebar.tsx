@@ -151,12 +151,12 @@ export function Sidebar({ children }: SidebarProps) {
                         </li>
                         <li>
                             <Link
-                                to="/admin/create-job"
+                                to="/admin/user_product"
                                 className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                             >
                                 <UserIcon className="h-5 w-5" />
                                 {isOpen && (
-                                    <span className="ml-3">Create Job</span>
+                                    <span className="ml-3">User Product</span>
                                 )}
                             </Link>
                         </li>

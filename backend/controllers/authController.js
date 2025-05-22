@@ -1,5 +1,7 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
+import productModel from "../models/productModel.js";
+
 
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
@@ -7,36 +9,33 @@ import axios from "axios"
 
 export const registerController = async (req, res) => {
   try {
-    console.log(req.body)
-    const { name, email, password } = req.body;
-    //validations
-    if (!name) {
-      return res.send({ error: "Name is Required" });
-    }
-    if (!email) {
-      return res.send({ message: "Email is Required" });
-    }
-    if (!password) {
-      return res.send({ message: "Password is Required" });
-    }
+    const { name, email, password, user_type, phone, user_type_data } = req.body;
 
-    //check user
     const exisitingUser = await userModel.findOne({ email });
-    //exisiting user
     if (exisitingUser) {
       return res.status(200).send({
         success: false,
         message: "Already Register please login",
       });
     }
-    //register user
+
     const hashedPassword = await hashPassword(password);
-    //save
-    const user = await new userModel({
+
+    // Create user data object
+    const userData = {
       name,
       email,
       password: hashedPassword,
-    }).save();
+      user_type,
+      phone
+    };
+
+    // Only add user_type_data if it exists and user_type is not Seller
+    if (user_type !== "Seller" && user_type_data) {
+      userData.user_type_data = user_type_data;
+    }
+
+    const user = await new userModel(userData).save();
 
     res.status(201).send({
       success: true,
@@ -47,51 +46,266 @@ export const registerController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Errror in Registeration",
+      message: "Error in Registration",
       error,
     });
   }
 };
+export const getNonSellerUsersController = async (req, res) => {
+  try {
+    // Find all users where user_type is not "Seller"
+    const nonSellerUsers = await userModel.find({
+      user_type: { $ne: "Seller" }
+    }).select("-password"); // Exclude password field from the response
 
-export const AddProduct = async (req, res) => {
+    res.status(200).send({
+      success: true,
+      message: "Non-seller users fetched successfully",
+      count: nonSellerUsers.length,
+      data: nonSellerUsers,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while fetching non-seller users",
+      error,
+    });
+  }
+};
+export const getCart = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { productId } = req.body;
 
-    if (!productId) {
-      return res.status(400).json({ success: false, message: 'Product ID is required' });
+    const user = await userModel.findById(userId)
+      .populate('cart.product', 'name price image')
+      .select('cart');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    // Check if product already exists in the user's product list
+    res.status(200).json({
+      success: true,
+      cart: user.cart
+    });
+  } catch (error) {
+    console.error('Error getting cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// Add to cart
+export const addToCart = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { productId, quantity = 1 } = req.body;
+
+    // Validate inputs
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product ID is required'
+      });
+    }
+
+    // Check if product exists
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    // Find user and update cart
     const user = await userModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    const alreadyExists = user.products.some(
-      p => p.product.toString() === productId
+    // Check if product already in cart
+    const existingItemIndex = user.cart.findIndex(
+      item => item.product.toString() === productId
     );
 
-    if (alreadyExists) {
-      return res.status(400).json({ success: false, message: 'Product already added' });
+    if (existingItemIndex >= 0) {
+      // Update quantity if already in cart
+      user.cart[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item to cart
+      user.cart.push({ product: productId, quantity });
     }
 
-    // Add product with default status (false)
-    user.products.push({ product: productId, status: false });
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      cart: user.cart,
+      message: 'Product added to cart successfully'
+    });
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// Update cart item quantity
+export const updateCartItem = async (req, res) => {
+  try {
+    const { userId, productId } = req.params;
+    const { quantity } = req.body;
+
+    // Validate inputs
+    if (!quantity || quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid quantity is required'
+      });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Find item in cart
+    const itemIndex = user.cart.findIndex(
+      item => item.product.toString() === productId
+    );
+
+    if (itemIndex < 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found in cart'
+      });
+    }
+
+    // Update quantity
+    user.cart[itemIndex].quantity = quantity;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      cart: user.cart,
+      message: 'Cart updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// Remove from cart
+export const removeFromCart = async (req, res) => {
+  try {
+    const { userId, productId } = req.params;
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Remove item from cart
+    user.cart = user.cart.filter(
+      item => item.product.toString() !== productId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      cart: user.cart,
+      message: 'Product removed from cart successfully'
+    });
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+export const checkoutCart = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if cart is empty
+    if (user.cart.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cart is empty'
+      });
+    }
+
+    // Move items from cart to products (as pending) with quantities
+    const newProducts = user.cart.map(item => ({
+      product: item.product,
+      status: false,
+      quantity: item.quantity  // Include the quantity
+    }));
+
+    // Check for existing products and update quantities if they exist
+    for (const newProduct of newProducts) {
+      const existingProductIndex = user.products.findIndex(
+        p => p.product.toString() === newProduct.product.toString()
+      );
+
+      if (existingProductIndex >= 0) {
+        // Product exists, update quantity
+        user.products[existingProductIndex].quantity += newProduct.quantity;
+      } else {
+        // Add new product
+        user.products.push(newProduct);
+      }
+    }
+
+    user.cart = []; // Clear cart
     await user.save();
 
     res.status(200).json({
       success: true,
       user,
-      message: 'Product added successfully with pending status'
+      message: 'Checkout successful. Products are now pending.'
     });
   } catch (error) {
-    console.error('Error adding product to user:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Error during checkout:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
-
-
 export const approveProduct = async (req, res) => {
   try {
     const { userId, productId } = req.body;
