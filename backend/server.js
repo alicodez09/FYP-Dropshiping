@@ -11,6 +11,9 @@ import integrationRoutes from "./routes/integrationRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 import newsfeedRoutes from "./routes/newsfeedRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import ticketRoutes from "./routes/ticketRoutes.js";
+
+
 
 
 
@@ -39,6 +42,8 @@ app.use("/api/v1/integration", integrationRoutes);
 app.use("/api/v1/faq", faqRoutes);
 app.use("/api/v1/newsfeed", newsfeedRoutes);
 app.use("/api/v1/job", jobRoutes);
+app.use("/api/v1/tickets", ticketRoutes);
+
 
 
 //rest api

@@ -22,6 +22,8 @@ import Team from "./pages/team/Team"
 import Faq from "./pages/faqs/Faq"
 import Order from "./pages/orders/Order"
 import AdminOrder from "./pages/dashboard/adminorder/Order"
+import UserTickets from "./pages/usertickets/UserTickets"
+import Ticket from "./pages/dashboard/adminticket/Ticket"
 
 const App = () => {
     return (
@@ -53,6 +55,8 @@ const App = () => {
                         element={<AdminOrder />}
                     />
 
+                    <Route path="admin/tickets" element={<Ticket />} />
+
                     <Route path="admin/create-job" element={<CreateJob />} />
 
                     <Route path="admin/users" element={<CreateUsers />} />
@@ -61,6 +65,7 @@ const App = () => {
 
                     <Route path="/products" element={<Product />} />
                     <Route path="/faqs" element={<Faq />} />
+                    <Route path="/user_tickets" element={<UserTickets />} />
 
                     <Route path="/team" element={<Team />} />
 

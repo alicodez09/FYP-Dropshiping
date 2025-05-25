@@ -26,6 +26,7 @@ import axios from "axios"
 import NewsFeed from "../neewsfeed/NewsFeed"
 import { FaLinkedin } from "react-icons/fa"
 import Footer from "@/components/footer"
+import ChatbotWrapper from "@/components/chatbot-wrapper"
 
 const Team = () => {
     // State for the image slider
@@ -239,6 +240,7 @@ const Team = () => {
             </section>
 
             <Footer />
+            <ChatbotWrapper />
         </div>
     )
 }

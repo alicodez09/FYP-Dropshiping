@@ -174,6 +174,17 @@ export function Sidebar({ children }: SidebarProps) {
                                 )}
                             </Link>
                         </li>
+                        <li>
+                            <Link
+                                to="/admin/tickets"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <Cog6ToothIcon className="h-5 w-5" />
+                                {isOpen && (
+                                    <span className="ml-3">Tickets</span>
+                                )}
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
 

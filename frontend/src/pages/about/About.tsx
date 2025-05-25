@@ -6,6 +6,7 @@ import {
     ShoppingCartIcon,
     UsersIcon,
 } from "lucide-react"
+import ChatbotWrapper from "@/components/chatbot-wrapper"
 
 const About: React.FC = () => {
     return (
@@ -305,6 +306,7 @@ const About: React.FC = () => {
                     </p>
                 </div>
             </div>
+            <ChatbotWrapper />
         </div>
     )
 }

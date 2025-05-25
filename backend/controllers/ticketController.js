@@ -1,6 +1,6 @@
-import ticketModel from "../models/ticketModel.js";
 import slugify from "slugify";
 
+import ticketModel from "../models/ticketModel";
 export const create = async (req, res) => {
   try {
 
@@ -20,6 +20,7 @@ export const create = async (req, res) => {
     });
   }
 };
+
 export const update = async (req, res) => {
   try {
     const { question, answer, category } = req.body;
@@ -85,58 +86,7 @@ export const get = async (req, res) => {
     });
   }
 };
-export const getTickets = async (req, res) => {
-  const result = await ticketModel.find({}).populate("user_id").exec();
-  res.status(200).send({
-    success: true,
-    message: "All tickets retrieved successfully",
-    result,
-  });
 
-};
-export const updateeTickets = async (req, res) => {
-  try {
-    const { status } = req.body;
-    console.log(status)
-    // Validate status
-    const validStatuses = ['open', 'in-progress', 'resolved'];
-    if (!validStatuses.includes(status)) {
-      console.log({
-        success: false,
-        message: 'Invalid status value'
-      })
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid status value'
-      });
-    }
-
-    const ticket = await ticketModel.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    )
-
-    if (!ticket) {
-      return res.status(404).json({
-        success: false,
-        message: 'Ticket not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      result: ticket
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: 'Failed to update ticket',
-      error: err.message
-    });
-  }
-
-};
 export const singleFaqController = async (req, res) => {
   try {
     const faq = await ticketModel.findOne({ slug: req.params.slug });

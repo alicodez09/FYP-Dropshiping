@@ -582,7 +582,7 @@ export const ChatBot = async (req, res) => {
     url: 'https://openrouter.ai/api/v1/chat/completions',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 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'
+      'Authorization': 'Bearer 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'
     },
     data: data
   };

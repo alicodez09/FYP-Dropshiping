@@ -1,7 +1,4 @@
-"use client"
-
 import { useState, useEffect } from "react"
-// import Image from "next/image"
 import {
     ChevronLeft,
     ChevronRight,
@@ -9,33 +6,21 @@ import {
     Truck,
     Shield,
     Clock,
-    Briefcase,
-    HelpCircle,
-    ChevronDown,
-    ChevronUp,
-    User,
-    Mail,
-    Phone,
-    Linkedin,
-    Globe,
-    PhoneCall,
-    MailCheck,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import axios from "axios"
 import NewsFeed from "../neewsfeed/NewsFeed"
-import { FaLinkedin } from "react-icons/fa"
 import shoppingMall from "./shopping_mall.jpg"
 import clothes from "./clothes.jpg"
 
 import online from "./online.jpg"
 import { NavLink } from "react-router-dom"
 import Footer from "@/components/footer"
+import ChatbotWrapper from "@/components/chatbot-wrapper"
 
 const Home = () => {
     // State for the image slider
     const [currentSlide, setCurrentSlide] = useState(0)
-    const [jobs, setJobs] = useState([])
     const [faqs, setFaqs] = useState([])
     const [expandedFaq, setExpandedFaq] = useState(null)
 
@@ -298,6 +283,7 @@ const Home = () => {
                 </div>
             </section>
             <Footer />
+            <ChatbotWrapper />
         </div>
     )
 }
