@@ -9,6 +9,7 @@ import {
   getAllOrdersController,
   orderStatusController,
   GetUser,
+  UserOrder,
   DeleteUser,
   ChatBot,
   approveProduct,
@@ -17,7 +18,8 @@ import {
   removeFromCart,
   updateCartItem,
   checkoutCart,
-  getCart
+  getCart,
+  AdminOrders
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 
@@ -27,7 +29,7 @@ const router = express.Router();
 //routing
 //REGISTER || METHOD POST
 router.post("/register", registerController);
-router.post("/approve-product", approveProduct);
+router.post("/approve-all-products", approveProduct);
 
 
 
@@ -35,6 +37,11 @@ router.post("/approve-product", approveProduct);
 router.post("/login", loginController);
 
 router.get("/get-user", GetUser);
+router.get("/user-orders/:user_id", UserOrder);
+router.get("/all-orders-admin", AdminOrders);
+
+
+
 router.get("/get-non-seller", getNonSellerUsersController);
 
 

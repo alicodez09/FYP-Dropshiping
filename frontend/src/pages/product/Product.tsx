@@ -2,22 +2,10 @@
 
 import axios from "axios"
 import { useEffect, useState } from "react"
-import {
-    Search,
-    Sliders,
-    X,
-    ShoppingCart,
-    Briefcase,
-    User,
-    Mail,
-    Phone,
-    Linkedin,
-    Globe,
-} from "lucide-react"
-import { motion } from "framer-motion"
+import { Search, Sliders, X, ShoppingCart } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
+import Footer from "@/components/footer"
 
-// Define TypeScript interfaces
 interface Category {
     _id: string
     name: string
@@ -58,6 +46,12 @@ interface CartItem {
     _id?: string
 }
 
+interface CheckoutData {
+    shippingAddress: string
+    phoneNumber: string
+    expectedPrice: string
+}
+
 const Product = () => {
     const router = useNavigate()
     const [products, setProducts] = useState<Product[]>([])
@@ -73,6 +67,13 @@ const Product = () => {
     const [cart, setCart] = useState<CartItem[]>([])
     const [showCart, setShowCart] = useState(false)
     const [authData, setAuthData] = useState<AuthData | null>(null)
+    const [showCheckoutModal, setShowCheckoutModal] = useState(false)
+    const [checkoutData, setCheckoutData] = useState<CheckoutData>({
+        shippingAddress: "",
+        phoneNumber: "",
+        expectedPrice: "",
+    })
+    const [isProcessingCheckout, setIsProcessingCheckout] = useState(false)
 
     useEffect(() => {
         const storedAuth = localStorage.getItem("zain_auth")
@@ -107,10 +108,10 @@ const Product = () => {
 
         try {
             await axios.put(
-                `http://localhost:8082/api/v1/auth/${authData.user._id}/add-to-cart`,
+                `http://localhost:8082/api/v1/auth/${authData?.user?._id}/add-to-cart`,
                 { productId },
             )
-            fetchCart(authData.user._id)
+            fetchCart(authData?.user?._id)
             alert("Product added to cart!")
         } catch (error) {
             console.error("Error adding to cart:", error)
@@ -133,7 +134,9 @@ const Product = () => {
         try {
             await axios.put(
                 `http://localhost:8082/api/v1/auth/${authData?.user?._id}/update-cart/${productId}`,
-                { quantity: newQuantity },
+                {
+                    quantity: newQuantity,
+                },
             )
             fetchCart(authData?.user?._id || "")
         } catch (error) {
@@ -141,17 +144,73 @@ const Product = () => {
         }
     }
 
-    const checkout = async () => {
+    const openCheckoutModal = () => {
+        const totalPrice = cart
+            .reduce(
+                (total, item) =>
+                    total + Number(item.product.price) * item.quantity,
+                0,
+            )
+            .toString()
+
+        setCheckoutData({
+            shippingAddress: "",
+            phoneNumber: "",
+            expectedPrice: totalPrice,
+        })
+        setShowCheckoutModal(true)
+        console.log("Modal state set to true") // Add this for debugging
+    }
+
+    const handleCheckoutInputChange = (
+        field: keyof CheckoutData,
+        value: string,
+    ) => {
+        setCheckoutData((prev) => ({
+            ...prev,
+            [field]: value,
+        }))
+    }
+
+    const processCheckout = async () => {
+        if (!checkoutData.shippingAddress.trim()) {
+            alert("Please enter shipping address")
+            return
+        }
+        if (!checkoutData.phoneNumber.trim()) {
+            alert("Please enter phone number")
+            return
+        }
+        if (!checkoutData.expectedPrice.trim()) {
+            alert("Please enter expected price")
+            return
+        }
+
+        setIsProcessingCheckout(true)
         try {
             await axios.post(
                 `http://localhost:8082/api/v1/auth/${authData?.user?._id}/checkout`,
+                {
+                    shippingAddress: checkoutData.shippingAddress,
+                    phoneNumber: checkoutData.phoneNumber,
+                    expectedPrice: checkoutData.expectedPrice,
+                    cartItems: cart,
+                },
             )
             setCart([])
             setShowCart(false)
+            setShowCheckoutModal(false)
+            setCheckoutData({
+                shippingAddress: "",
+                phoneNumber: "",
+                expectedPrice: "",
+            })
             alert("Checkout successful! Your order is now pending.")
         } catch (error) {
             console.error("Error during checkout:", error)
             alert("Checkout failed")
+        } finally {
+            setIsProcessingCheckout(false)
         }
     }
 
@@ -306,7 +365,16 @@ const Product = () => {
 
                     {cart.length === 0 ? (
                         <div className="py-8 text-center">
-                            <p className="text-gray-600">Your cart is empty</p>
+                            <p className="mb-5 text-gray-600">
+                                Your cart is empty
+                            </p>
+
+                            <Link
+                                to="/"
+                                className="transition-color mt-5 rounded-lg bg-blue-600 px-3 py-1.5 text-lg font-medium text-white"
+                            >
+                                Go Back
+                            </Link>
                         </div>
                     ) : (
                         <div
@@ -331,6 +399,7 @@ const Product = () => {
                                             <img
                                                 src={
                                                     item.product.image[0] ||
+                                                    "/placeholder.svg" ||
                                                     "/placeholder.svg"
                                                 }
                                                 alt={item.product.name}
@@ -359,7 +428,7 @@ const Product = () => {
                                                     )
                                                 }
                                                 disabled={item.quantity <= 1}
-                                                className="h-8 w-8 rounded border bg-black disabled:opacity-50"
+                                                className="h-8 w-8 rounded border bg-black text-white disabled:opacity-50"
                                             >
                                                 -
                                             </button>
@@ -373,7 +442,7 @@ const Product = () => {
                                                         item.quantity + 1,
                                                     )
                                                 }
-                                                className="h-8 w-8 rounded border bg-black"
+                                                className="h-8 w-8 rounded border bg-black text-white"
                                             >
                                                 +
                                             </button>
@@ -412,7 +481,7 @@ const Product = () => {
                                 </div>
                                 <div className="flex justify-center">
                                     <button
-                                        onClick={checkout}
+                                        onClick={openCheckoutModal}
                                         className="mt-4 w-44 rounded-lg bg-purple-600 py-2 font-medium text-white hover:bg-purple-700"
                                     >
                                         Proceed to Checkout
@@ -421,6 +490,167 @@ const Product = () => {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Checkout Modal */}
+            {showCheckoutModal && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+                        <div className="mb-6 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-gray-900">
+                                Checkout Details
+                            </h2>
+                            <button
+                                onClick={() => setShowCheckoutModal(false)}
+                                className="rounded-full p-2 hover:bg-gray-100"
+                                disabled={isProcessingCheckout}
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Shipping Address */}
+                            <div>
+                                <label
+                                    htmlFor="shipping-address"
+                                    className="mb-2 block text-sm font-medium text-gray-700"
+                                >
+                                    Shipping Address *
+                                </label>
+                                <textarea
+                                    id="shipping-address"
+                                    rows={3}
+                                    value={checkoutData.shippingAddress}
+                                    onChange={(e) =>
+                                        handleCheckoutInputChange(
+                                            "shippingAddress",
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter your complete shipping address"
+                                    disabled={isProcessingCheckout}
+                                />
+                            </div>
+
+                            {/* Phone Number */}
+                            <div>
+                                <label
+                                    htmlFor="phone-number"
+                                    className="mb-2 block text-sm font-medium text-gray-700"
+                                >
+                                    Phone Number *
+                                </label>
+                                <input
+                                    id="phone-number"
+                                    type="tel"
+                                    value={checkoutData.phoneNumber}
+                                    onChange={(e) =>
+                                        handleCheckoutInputChange(
+                                            "phoneNumber",
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter your phone number"
+                                    disabled={isProcessingCheckout}
+                                />
+                            </div>
+
+                            {/* Expected Price */}
+                            <div>
+                                <label
+                                    htmlFor="expected-price"
+                                    className="mb-2 block text-sm font-medium text-gray-700"
+                                >
+                                    Expected Price *
+                                </label>
+                                <input
+                                    id="expected-price"
+                                    type="number"
+                                    value={checkoutData.expectedPrice}
+                                    onChange={(e) =>
+                                        handleCheckoutInputChange(
+                                            "expectedPrice",
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter expected price"
+                                    disabled={isProcessingCheckout}
+                                />
+                            </div>
+
+                            {/* Order Summary */}
+                            <div className="border-t pt-4">
+                                <h3 className="mb-2 text-sm font-medium text-gray-700">
+                                    Order Summary
+                                </h3>
+                                <div className="space-y-1">
+                                    {cart.map((item) => (
+                                        <div
+                                            key={item.product._id}
+                                            className="flex justify-between text-sm"
+                                        >
+                                            <span className="text-gray-600">
+                                                {item.product.name} x{" "}
+                                                {item.quantity}
+                                            </span>
+                                            <span className="text-gray-900">
+                                                {formatPrice(
+                                                    (
+                                                        Number(
+                                                            item.product.price,
+                                                        ) * item.quantity
+                                                    ).toString(),
+                                                )}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-between border-t pt-2 font-medium">
+                                        <span>Total:</span>
+                                        <span>
+                                            {formatPrice(
+                                                cart
+                                                    .reduce(
+                                                        (total, item) =>
+                                                            total +
+                                                            Number(
+                                                                item.product
+                                                                    .price,
+                                                            ) *
+                                                                item.quantity,
+                                                        0,
+                                                    )
+                                                    .toString(),
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex gap-3">
+                            <button
+                                onClick={() => setShowCheckoutModal(false)}
+                                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                disabled={isProcessingCheckout}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={processCheckout}
+                                className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
+                                disabled={isProcessingCheckout}
+                            >
+                                {isProcessingCheckout
+                                    ? "Processing..."
+                                    : "Complete Order"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -508,6 +738,7 @@ const Product = () => {
                                             <img
                                                 src={
                                                     product.image[0] ||
+                                                    "/placeholder.svg" ||
                                                     "/placeholder.svg"
                                                 }
                                                 alt={product.name}
@@ -575,6 +806,7 @@ const Product = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 

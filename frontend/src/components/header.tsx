@@ -98,6 +98,14 @@ const Header = () => {
                         >
                             Products
                         </NavLink>
+                        {user && user.role === 0 && (
+                            <NavLink
+                                to="/order"
+                                active={location.pathname === "/order"}
+                            >
+                                Orders
+                            </NavLink>
+                        )}
                         {/* 
                         <NavLink
                             to="/categories"

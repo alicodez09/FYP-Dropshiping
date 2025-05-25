@@ -10,6 +10,7 @@ import {
     Cog6ToothIcon,
     DocumentTextIcon,
     UserIcon,
+    ChartBarIcon,
 } from "./icons"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -92,6 +93,19 @@ export function Sidebar({ children }: SidebarProps) {
                 {/* Sidebar Navigation */}
                 <nav className="flex-1 overflow-y-auto py-4">
                     <ul className="space-y-1 px-3">
+                        <li>
+                            <Link
+                                to="/admin/order_anayltics"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <ChartBarIcon className="h-5 w-5" />
+                                {isOpen && (
+                                    <span className="ml-3">
+                                        Order Anayltics
+                                    </span>
+                                )}
+                            </Link>
+                        </li>
                         <li>
                             <Link
                                 to="/admin/users"
@@ -213,6 +227,15 @@ export function Sidebar({ children }: SidebarProps) {
 
                 <nav className="flex-1 overflow-y-auto py-4">
                     <ul className="space-y-1 px-3">
+                        <li>
+                            <Link
+                                to="/admin/order_anayltics"
+                                className="flex items-center rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                                <ChartBarIcon className="h-5 w-5" />
+                                <span className="ml-3">Order Anayltics</span>
+                            </Link>
+                        </li>
                         <li>
                             <Link
                                 to="/admin/users"

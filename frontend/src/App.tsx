@@ -20,6 +20,8 @@ import Product from "./pages/product/Product"
 import About from "./pages/about/About"
 import Team from "./pages/team/Team"
 import Faq from "./pages/faqs/Faq"
+import Order from "./pages/orders/Order"
+import AdminOrder from "./pages/dashboard/adminorder/Order"
 
 const App = () => {
     return (
@@ -46,11 +48,16 @@ const App = () => {
                         path="admin/user_product"
                         element={<Userproduct />}
                     />
+                    <Route
+                        path="admin/order_anayltics"
+                        element={<AdminOrder />}
+                    />
 
                     <Route path="admin/create-job" element={<CreateJob />} />
 
                     <Route path="admin/users" element={<CreateUsers />} />
                     <Route path="/" element={<Home />} />
+                    <Route path="/order" element={<Order />} />
 
                     <Route path="/products" element={<Product />} />
                     <Route path="/faqs" element={<Faq />} />

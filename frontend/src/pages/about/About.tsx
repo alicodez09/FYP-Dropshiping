@@ -303,9 +303,6 @@ const About: React.FC = () => {
                         Join thousands of successful entrepreneurs who have
                         built profitable online businesses with our platform.
                     </p>
-                    <button className="rounded-lg bg-white px-8 py-3 font-semibold text-purple-700 shadow-md transition duration-300 hover:bg-gray-100">
-                        Get Started Today
-                    </button>
                 </div>
             </div>
         </div>

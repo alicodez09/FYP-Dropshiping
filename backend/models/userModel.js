@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
@@ -42,7 +42,19 @@ const userSchema = new mongoose.Schema(
         type: Boolean,
         default: false
       },
-      quantity: {  // Add quantity field
+      expectedPrice: {
+        type: String,
+        required: false
+      },
+      shippingAddress: {
+        type: String,
+        required: false
+      },
+      phoneNumber: {
+        type: String,
+        required: false
+      },
+      quantity: {
         type: Number,
         default: 1,
         min: 1

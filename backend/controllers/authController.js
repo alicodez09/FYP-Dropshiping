@@ -1,6 +1,9 @@
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
+import Order from "../models/orderModel.js";
+
+
 
 
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
@@ -104,6 +107,7 @@ export const getCart = async (req, res) => {
 // Add to cart
 export const addToCart = async (req, res) => {
   try {
+    console.log(req.body)
     const { userId } = req.params;
     const { productId, quantity = 1 } = req.body;
 
@@ -251,12 +255,21 @@ export const removeFromCart = async (req, res) => {
 export const checkoutCart = async (req, res) => {
   try {
     const { userId } = req.params;
+    const { shippingAddress, phoneNumber, expectedPrice, cartItems } = req.body;
+
+    // Validate required fields
+    if (!shippingAddress || !phoneNumber || !expectedPrice) {
+      return res.status(400).json({
+        success: false,
+        message: 'Shipping address, phone number, and expected price are required'
+      });
+    }
 
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -264,28 +277,33 @@ export const checkoutCart = async (req, res) => {
     if (user.cart.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Cart is empty'
+        message: 'Cart is empty',
       });
     }
 
-    // Move items from cart to products (as pending) with quantities
-    const newProducts = user.cart.map(item => ({
+    // Move items from cart to products (as pending) with all checkout details
+    const newProducts = user.cart.map((item) => ({
       product: item.product,
       status: false,
-      quantity: item.quantity  // Include the quantity
+      expectedPrice: expectedPrice,
+      shippingAddress: shippingAddress,
+      phoneNumber: phoneNumber,
+      quantity: item.quantity,
     }));
 
-    // Check for existing products and update quantities if they exist
     for (const newProduct of newProducts) {
       const existingProductIndex = user.products.findIndex(
-        p => p.product.toString() === newProduct.product.toString()
+        (p) => p.product.toString() === newProduct.product.toString()
       );
 
       if (existingProductIndex >= 0) {
-        // Product exists, update quantity
+        // Update existing product with new details and add quantity
         user.products[existingProductIndex].quantity += newProduct.quantity;
+        user.products[existingProductIndex].expectedPrice = newProduct.expectedPrice;
+        user.products[existingProductIndex].shippingAddress = newProduct.shippingAddress;
+        user.products[existingProductIndex].phoneNumber = newProduct.phoneNumber;
       } else {
-        // Add new product
+        // Add new product with all details
         user.products.push(newProduct);
       }
     }
@@ -293,10 +311,20 @@ export const checkoutCart = async (req, res) => {
     user.cart = []; // Clear cart
     await user.save();
 
+    // Create new Order
+    const newOrder = await Order.create({
+      user: userId,
+      shippingAddress,
+      phoneNumber,
+      expectedPrice,
+      cartItems, // Already from req.body
+    });
+
     res.status(200).json({
       success: true,
       user,
-      message: 'Checkout successful. Products are now pending.'
+      order: newOrder,
+      message: 'Checkout successful. Order created.',
     });
   } catch (error) {
     console.error('Error during checkout:', error);
@@ -306,21 +334,26 @@ export const checkoutCart = async (req, res) => {
     });
   }
 };
+
 export const approveProduct = async (req, res) => {
   try {
-    const { userId, productId } = req.body;
 
-    if (!userId || !productId) {
+    const { userId, products } = req.body;
+
+    if (!userId || !products || !Array.isArray(products)) {
       return res.status(400).json({
         success: false,
-        message: "User ID and Product ID are required"
+        message: "User ID and products array are required"
       });
     }
 
-    // Find the user and remove the product from their products array
+    // Get all product IDs to remove
+    const productIds = products.map(p => p.productId);
+
+    // Find the user and remove all specified products
     const user = await userModel.findByIdAndUpdate(
       userId,
-      { $pull: { products: { _id: productId } } },
+      { $pull: { products: { _id: { $in: productIds } } } },
       { new: true }
     );
 
@@ -331,20 +364,62 @@ export const approveProduct = async (req, res) => {
       });
     }
 
+    // Here you would typically also process the orders/approvals
+    // For each product in the products array, you might:
+    // 1. Create an order record
+    // 2. Send confirmation emails
+    // 3. Update inventory, etc.
+    const update_product_status = await Order.findOne({
+      shippingAddress: req.body.products[0].shippingAddress,
+      phoneNumber: req.body.products[0].phoneNumber,
+      expectedPrice: req.body.products[0].expectedPrice,
+      cartItems: { $size: req.body.products.length }
+    });
+
+    if (update_product_status) {
+      update_product_status.status = "completed";
+      await update_product_status.save();
+      console.log("Order status updated to completed");
+    } else {
+      console.log("Order not found");
+    }
+
     return res.status(200).json({
       success: true,
-      message: "Product approved and removed successfully",
+      message: "All products approved and removed successfully",
       user
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Error in approving product",
+      message: "Error in approving products",
       error: error.message
     });
   }
 };
+export const UserOrder = async (req, res) => {
+  const { user_id } = req.params;
+  const result = await Order.find({ user: user_id })
+
+  return res.status(200).send({
+    success: true,
+    message: "User Orders fetched successfully",
+    data: result
+  });
+
+};
+export const AdminOrders = async (req, res) => {
+  const result = await Order.find().populate("user").exec()
+
+  return res.status(200).send({
+    success: true,
+    message: "User Orders fetched successfully",
+    data: result
+  });
+
+};
+
 //POST LOGIN
 export const loginController = async (req, res) => {
   try {
