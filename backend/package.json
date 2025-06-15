@@ -17,7 +17,7 @@
     "@google/generative-ai": "^0.24.1",
     "@sendgrid/mail": "^7.7.0",
     "axios": "^1.9.0",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^5.1.1",
     "braintree": "^3.13.0",
     "colors": "^1.4.0",
     "concurrently": "^7.6.0",

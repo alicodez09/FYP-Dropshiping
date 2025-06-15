@@ -30,7 +30,10 @@ const Login: React.FC = () => {
             if (response.data.success) {
                 toast.success("Login successful!")
 
-                localStorage.setItem("zain_auth", JSON.stringify(response.data))
+                localStorage.setItem(
+                    "dropshipping_auth",
+                    JSON.stringify(response.data),
+                )
 
                 window.location.href = "/"
             } else {

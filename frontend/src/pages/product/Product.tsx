@@ -76,7 +76,7 @@ const Product = () => {
     const [isProcessingCheckout, setIsProcessingCheckout] = useState(false)
 
     useEffect(() => {
-        const storedAuth = localStorage.getItem("zain_auth")
+        const storedAuth = localStorage.getItem("dropshipping_auth")
         if (storedAuth) {
             try {
                 const parsedData = JSON.parse(storedAuth)

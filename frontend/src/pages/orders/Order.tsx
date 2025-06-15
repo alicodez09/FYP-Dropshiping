@@ -55,7 +55,7 @@ const Order: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
 
-    const storedAuth = localStorage.getItem("zain_auth")
+    const storedAuth = localStorage.getItem("dropshipping_auth")
     const parsedData = storedAuth ? JSON.parse(storedAuth) : null
 
     useEffect(() => {

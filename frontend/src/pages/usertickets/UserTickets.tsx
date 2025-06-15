@@ -22,7 +22,7 @@ interface TicketFormData {
 }
 
 const UserTickets = () => {
-    const storedAuth = localStorage.getItem("zain_auth")
+    const storedAuth = localStorage.getItem("dropshipping_auth")
     const parsedData = storedAuth ? JSON.parse(storedAuth) : null
     const [tickets, setTickets] = useState<Ticket[]>([])
     const [formData, setFormData] = useState<TicketFormData>({

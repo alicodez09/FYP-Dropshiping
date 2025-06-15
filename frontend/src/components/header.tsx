@@ -28,7 +28,7 @@ const Header = () => {
 
     useEffect(() => {
         // Check if user is logged in
-        const authData = localStorage.getItem("zain_auth")
+        const authData = localStorage.getItem("dropshipping_auth")
         if (authData) {
             try {
                 const parsedData: AuthData = JSON.parse(authData)
@@ -42,7 +42,7 @@ const Header = () => {
     }, [])
 
     const handleLogout = () => {
-        localStorage.removeItem("zain_auth")
+        localStorage.removeItem("dropshipping_auth")
         setUser(null)
         // Redirect to home page if needed
         window.location.href = "/"

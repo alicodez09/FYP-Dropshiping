@@ -24,7 +24,7 @@ export function Sidebar({ children }: SidebarProps) {
 
     const [isMobileOpen, setIsMobileOpen] = useState(false)
     const handleLogout = () => {
-        localStorage.removeItem("zain_auth")
+        localStorage.removeItem("dropshipping_auth")
         navigate("/login")
     }
 
